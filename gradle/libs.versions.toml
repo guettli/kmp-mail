@@ -2,6 +2,7 @@
 kotlin     = "2.1.10"
 ktor       = "3.1.2"
 coroutines = "1.10.1"
+kover      = "0.9.1"
 
 [libraries]
 ktor-network            = { module = "io.ktor:ktor-network",                           version.ref = "ktor"       }
@@ -12,3 +13,4 @@ kotlin-test             = { module = "org.jetbrains.kotlin:kotlin-test",        
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kover                = { id = "org.jetbrains.kotlinx.kover",        version.ref = "kover"  }

@@ -107,6 +107,13 @@ class ImapClient(private val config: ImapConfig) {
     companion object {
         operator fun invoke(block: ImapConfig.Builder.() -> Unit): ImapClient =
             ImapClient(ImapConfig.Builder().apply(block).build())
+
+        /** Create a client with a pre-built [session] for unit testing (no real TCP connection). */
+        internal fun withSession(session: ImapSession): ImapClient {
+            val client = ImapClient(ImapConfig.Builder().build())
+            client.session = session
+            return client
+        }
     }
 }
 

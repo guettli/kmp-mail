@@ -4,9 +4,37 @@
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.kover)
 }
 
 subprojects {
     group   = "io.github.kmpmail"
     version = "0.1.0-SNAPSHOT"
+}
+
+// Aggregate coverage from all submodules into the root project.
+dependencies {
+    kover(project(":kmp-mime"))
+    kover(project(":kmp-smtp"))
+    kover(project(":kmp-imap"))
+}
+
+kover {
+    reports {
+        filters {
+            // Exclude thin ktor network adapters — they wrap real TCP sockets and
+            // cannot be meaningfully unit-tested without a live server.
+            excludes {
+                classes(
+                    "io.github.kmpmail.smtp.SmtpConnection",
+                    "io.github.kmpmail.imap.ImapConnection",
+                )
+            }
+        }
+        verify {
+            rule {
+                minBound(85)
+            }
+        }
+    }
 }

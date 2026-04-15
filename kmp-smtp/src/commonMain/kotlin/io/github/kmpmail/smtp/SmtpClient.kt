@@ -80,6 +80,13 @@ class SmtpClient(private val config: SmtpConfig) {
     companion object {
         operator fun invoke(block: SmtpConfig.Builder.() -> Unit): SmtpClient =
             SmtpClient(SmtpConfig.Builder().apply(block).build())
+
+        /** Create a client with a pre-built [session] for unit testing (no real TCP connection). */
+        internal fun withSession(session: SmtpSession): SmtpClient {
+            val client = SmtpClient(SmtpConfig.Builder().build())
+            client.session = session
+            return client
+        }
     }
 }
 
