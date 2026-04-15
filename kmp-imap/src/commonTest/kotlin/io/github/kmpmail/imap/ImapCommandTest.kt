@@ -102,6 +102,22 @@ class ImapCommandTest {
     fun `expunge returns EXPUNGE`() = assertEquals("EXPUNGE", ImapCommand.expunge())
 
     @Test
+    fun `uidExpunge produces UID EXPUNGE`() =
+        assertEquals("UID EXPUNGE 1:5", ImapCommand.uidExpunge("1:5"))
+
+    @Test
+    fun `create quotes mailbox name`() =
+        assertEquals("""CREATE "Drafts"""", ImapCommand.create("Drafts"))
+
+    @Test
+    fun `delete quotes mailbox name`() =
+        assertEquals("""DELETE "OldFolder"""", ImapCommand.delete("OldFolder"))
+
+    @Test
+    fun `rename quotes both names`() =
+        assertEquals("""RENAME "OldName" "NewName"""", ImapCommand.rename("OldName", "NewName"))
+
+    @Test
     fun `append with flags`() {
         val cmd = ImapCommand.append("INBOX", "\\Seen", 42)
         assertEquals("""APPEND "INBOX" (\Seen) {42}""", cmd)

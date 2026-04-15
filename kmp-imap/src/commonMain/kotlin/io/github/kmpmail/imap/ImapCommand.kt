@@ -32,6 +32,10 @@ class ImapCommand {
         fun noop()  = "NOOP"
         fun close() = "CLOSE"
         fun expunge() = "EXPUNGE"
+        fun uidExpunge(uidSet: String) = "UID EXPUNGE $uidSet"
+        fun create(mailbox: String)    = "CREATE ${quote(mailbox)}"
+        fun delete(mailbox: String)    = "DELETE ${quote(mailbox)}"
+        fun rename(from: String, to: String) = "RENAME ${quote(from)} ${quote(to)}"
 
         fun append(mailbox: String, flags: String?, size: Int): String {
             val flagPart = if (flags != null) " ($flags)" else ""

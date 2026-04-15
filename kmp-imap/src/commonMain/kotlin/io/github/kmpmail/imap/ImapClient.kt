@@ -72,6 +72,12 @@ class ImapClient(private val config: ImapConfig) {
 
     suspend fun close() = requireSession().close()
 
+    suspend fun createMailbox(name: String) = requireSession().createMailbox(name)
+
+    suspend fun deleteMailbox(name: String) = requireSession().deleteMailbox(name)
+
+    suspend fun renameMailbox(from: String, to: String) = requireSession().renameMailbox(from, to)
+
     // -------------------------------------------------------------------------
     // Message operations
     // -------------------------------------------------------------------------
@@ -87,6 +93,14 @@ class ImapClient(private val config: ImapConfig) {
 
     suspend fun uidStore(uidSet: String, item: String, flags: String) =
         requireSession().uidStore(uidSet, item, flags)
+
+    suspend fun expunge() = requireSession().expunge()
+
+    /**
+     * Permanently removes the specified UIDs with \Deleted flag.
+     * Requires the server to advertise UIDPLUS capability.
+     */
+    suspend fun uidExpunge(uidSet: String) = requireSession().uidExpunge(uidSet)
 
     suspend fun appendMessage(
         mailbox: String,

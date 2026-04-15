@@ -288,4 +288,64 @@ class ImapClientFeaturesTest {
         assertTrue(t.clientLines[0].startsWith("A001 APPEND"))
         assertEquals(msgBytes.decodeToString(), t.clientLines[1])
     }
+
+    // =========================================================================
+    // 4. expunge / uidExpunge
+    // =========================================================================
+
+    @Test
+    fun `expunge sends EXPUNGE command`() = runTest {
+        val transport = MockImapTransport(listOf("A001 OK EXPUNGE completed"))
+        val client = ImapClient.withSession(ImapSession(transport))
+        client.expunge()
+        assertEquals("A001 EXPUNGE", transport.clientLines.first())
+    }
+
+    @Test
+    fun `uidExpunge sends UID EXPUNGE command`() = runTest {
+        val transport = MockImapTransport(listOf("A001 OK UID EXPUNGE completed"))
+        val client = ImapClient.withSession(ImapSession(transport))
+        client.uidExpunge("1:5")
+        assertEquals("A001 UID EXPUNGE 1:5", transport.clientLines.first())
+    }
+
+    @Test
+    fun `expunge before connect throws`() = runTest {
+        val client = ImapClient { host = "imap.example.com" }
+        assertFailsWith<IllegalStateException> { client.expunge() }
+    }
+
+    // =========================================================================
+    // 5. createMailbox / deleteMailbox / renameMailbox
+    // =========================================================================
+
+    @Test
+    fun `createMailbox sends CREATE command`() = runTest {
+        val transport = MockImapTransport(listOf("""A001 OK CREATE completed"""))
+        val client = ImapClient.withSession(ImapSession(transport))
+        client.createMailbox("Archive")
+        assertEquals("""A001 CREATE "Archive"""", transport.clientLines.first())
+    }
+
+    @Test
+    fun `deleteMailbox sends DELETE command`() = runTest {
+        val transport = MockImapTransport(listOf("A001 OK DELETE completed"))
+        val client = ImapClient.withSession(ImapSession(transport))
+        client.deleteMailbox("OldFolder")
+        assertEquals("""A001 DELETE "OldFolder"""", transport.clientLines.first())
+    }
+
+    @Test
+    fun `renameMailbox sends RENAME command`() = runTest {
+        val transport = MockImapTransport(listOf("A001 OK RENAME completed"))
+        val client = ImapClient.withSession(ImapSession(transport))
+        client.renameMailbox("OldName", "NewName")
+        assertEquals("""A001 RENAME "OldName" "NewName"""", transport.clientLines.first())
+    }
+
+    @Test
+    fun `createMailbox before connect throws`() = runTest {
+        val client = ImapClient { host = "imap.example.com" }
+        assertFailsWith<IllegalStateException> { client.createMailbox("Test") }
+    }
 }

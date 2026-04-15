@@ -173,6 +173,61 @@ class ImapSessionTest {
     }
 
     // -------------------------------------------------------------------------
+    // EXPUNGE / UID EXPUNGE
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `expunge sends EXPUNGE command`() = runTest {
+        val t = MockImapTransport(listOf("A001 OK EXPUNGE completed"))
+        val sess = ImapSession(t)
+        sess.expunge()
+        assertEquals("A001 EXPUNGE", t.clientLines.first())
+    }
+
+    @Test
+    fun `uidExpunge sends UID EXPUNGE command`() = runTest {
+        val t = MockImapTransport(listOf("A001 OK UID EXPUNGE completed"))
+        val sess = ImapSession(t)
+        sess.uidExpunge("1:10")
+        assertEquals("A001 UID EXPUNGE 1:10", t.clientLines.first())
+    }
+
+    // -------------------------------------------------------------------------
+    // Mailbox management — CREATE / DELETE / RENAME
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `createMailbox sends CREATE command`() = runTest {
+        val t = MockImapTransport(listOf("""A001 OK CREATE completed"""))
+        val sess = ImapSession(t)
+        sess.createMailbox("Archive")
+        assertEquals("""A001 CREATE "Archive"""", t.clientLines.first())
+    }
+
+    @Test
+    fun `createMailbox throws ImapNoException on NO`() = runTest {
+        val t = MockImapTransport(listOf("""A001 NO CREATE failed: mailbox already exists"""))
+        val sess = ImapSession(t)
+        assertFailsWith<ImapNoException> { sess.createMailbox("INBOX") }
+    }
+
+    @Test
+    fun `deleteMailbox sends DELETE command`() = runTest {
+        val t = MockImapTransport(listOf("A001 OK DELETE completed"))
+        val sess = ImapSession(t)
+        sess.deleteMailbox("OldFolder")
+        assertEquals("""A001 DELETE "OldFolder"""", t.clientLines.first())
+    }
+
+    @Test
+    fun `renameMailbox sends RENAME command`() = runTest {
+        val t = MockImapTransport(listOf("A001 OK RENAME completed"))
+        val sess = ImapSession(t)
+        sess.renameMailbox("OldName", "NewName")
+        assertEquals("""A001 RENAME "OldName" "NewName"""", t.clientLines.first())
+    }
+
+    // -------------------------------------------------------------------------
     // CLOSE
     // -------------------------------------------------------------------------
 

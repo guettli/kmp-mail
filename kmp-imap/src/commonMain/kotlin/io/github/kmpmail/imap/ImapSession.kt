@@ -146,6 +146,48 @@ class ImapSession(internal val transport: ImapTransport) {
         processUntilTagged(tag)
     }
 
+    /** EXPUNGE permanently removes all messages with the \Deleted flag. */
+    suspend fun expunge() {
+        val tag = cmd.nextTag()
+        transport.writeLine("$tag ${ImapCommand.expunge()}")
+        processUntilTagged(tag)
+    }
+
+    /**
+     * UID EXPUNGE removes only the specified UIDs that have \Deleted set.
+     * Requires the UIDPLUS capability (RFC 4315).
+     */
+    suspend fun uidExpunge(uidSet: String) {
+        val tag = cmd.nextTag()
+        transport.writeLine("$tag ${ImapCommand.uidExpunge(uidSet)}")
+        processUntilTagged(tag)
+    }
+
+    // -------------------------------------------------------------------------
+    // Mailbox management
+    // -------------------------------------------------------------------------
+
+    /** CREATE a new mailbox on the server. */
+    suspend fun createMailbox(name: String) {
+        val tag = cmd.nextTag()
+        transport.writeLine("$tag ${ImapCommand.create(name)}")
+        processUntilTagged(tag)
+    }
+
+    /** DELETE a mailbox from the server. */
+    suspend fun deleteMailbox(name: String) {
+        val tag = cmd.nextTag()
+        transport.writeLine("$tag ${ImapCommand.delete(name)}")
+        processUntilTagged(tag)
+    }
+
+    /** RENAME a mailbox on the server. */
+    suspend fun renameMailbox(from: String, to: String) {
+        val tag = cmd.nextTag()
+        transport.writeLine("$tag ${ImapCommand.rename(from, to)}")
+        processUntilTagged(tag)
+    }
+
     /** LIST mailboxes matching [pattern] under [reference]. */
     suspend fun list(reference: String = "", pattern: String = "*"): List<MailboxListEntry> {
         val tag = cmd.nextTag()
