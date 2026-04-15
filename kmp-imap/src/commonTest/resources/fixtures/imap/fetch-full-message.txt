@@ -1,0 +1,24 @@
+# IMAP UID FETCH full message — header + body sections
+# Source: RFC 3501 §6.4.5 (adapted for fetchMessages())
+
+C: A001 UID FETCH 1234 (UID FLAGS BODY.PEEK[HEADER] BODY.PEEK[TEXT])
+S: * 1 FETCH (UID 1234 FLAGS (\Seen) BODY[HEADER] {38}
+S: From: alice@example.com
+S: Subject: Hello
+S:  BODY[TEXT] {11}
+S: Hello World)
+S: A001 OK UID FETCH completed
+
+# Multipart message
+C: A002 UID FETCH 1235:1236 (UID FLAGS BODY.PEEK[HEADER] BODY.PEEK[TEXT])
+S: * 2 FETCH (UID 1235 FLAGS (\Seen \Flagged) BODY[HEADER] {56}
+S: From: bob@example.com
+S: Subject: Meeting tomorrow
+S:  BODY[TEXT] {15}
+S: See you at 3pm.)
+S: * 3 FETCH (UID 1236 FLAGS () BODY[HEADER] {52}
+S: From: carol@example.com
+S: Subject: Lunch plans
+S:  BODY[TEXT] {5}
+S: Sure!)
+S: A002 OK UID FETCH completed

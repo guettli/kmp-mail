@@ -1,0 +1,13 @@
+# IMAP LIST — enumerate mailboxes
+# Source: RFC 3501 §6.3.8 example (adapted)
+
+C: A001 LIST "" "*"
+S: * LIST (\HasNoChildren) "/" "INBOX"
+S: * LIST (\HasNoChildren) "/" "Sent"
+S: * LIST (\Noselect \HasChildren) "/" "[Gmail]"
+S: A001 OK LIST completed
+
+# LIST with reference
+C: A002 LIST "INBOX" "*"
+S: * LIST (\HasNoChildren) "/" "INBOX/Work"
+S: A002 OK LIST completed

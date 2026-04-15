@@ -1,5 +1,7 @@
 package io.github.kmpmail.imap
 
+import io.github.kmpmail.mime.MimeMessage
+import io.github.kmpmail.mime.MimeParser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -139,10 +141,116 @@ class ImapSession(internal val transport: ImapTransport) {
         processUntilTagged(tag)
     }
 
-    suspend fun noop() {
-        val tag = cmd.nextTag()
+    suspend fun noop() {        val tag = cmd.nextTag()
         transport.writeLine("$tag ${ImapCommand.noop()}")
         processUntilTagged(tag)
+    }
+
+    /** LIST mailboxes matching [pattern] under [reference]. */
+    suspend fun list(reference: String = "", pattern: String = "*"): List<MailboxListEntry> {
+        val tag = cmd.nextTag()
+        transport.writeLine("$tag ${ImapCommand.list(reference, pattern)}")
+        val results = mutableListOf<MailboxListEntry>()
+        processUntilTagged(tag) { r ->
+            if (r is ImapResponse.Untagged && r.keyword == "LIST") {
+                parseListResponse(r)?.let { results.add(it) }
+            }
+        }
+        return results
+    }
+
+    /**
+     * High-level UID FETCH that returns fully-parsed [FetchedMessage] objects.
+     *
+     * Fetches UID, FLAGS, BODY[HEADER], and BODY[TEXT] for each message in
+     * [uidSet], concatenates header + "\r\n" + text, and runs [MimeParser].
+     */
+    suspend fun fetchMessages(uidSet: String): List<FetchedMessage> {
+        val raw = uidFetch(uidSet, "(UID FLAGS BODY.PEEK[HEADER] BODY.PEEK[TEXT])")
+        return raw.mapNotNull { r ->
+            val attrList = r.values.firstOrNull()?.asList() ?: return@mapNotNull null
+            val attrs = extractFetchAttrs(attrList)
+            val uid = (attrs["UID"] as? ImapValue.Num)?.value ?: return@mapNotNull null
+            val flags = (attrs["FLAGS"] as? ImapValue.Lst)
+                ?.items?.mapNotNull { it.asString() } ?: emptyList()
+            val headerStr = (attrs["BODY[HEADER]"] as? ImapValue.Str)?.value ?: ""
+            val textStr   = (attrs["BODY[TEXT]"]   as? ImapValue.Str)?.value ?: ""
+            val combined  = "$headerStr\r\n$textStr"
+            val message   = MimeParser.parse(combined)
+            FetchedMessage(uid, flags, message)
+        }
+    }
+
+    /**
+     * APPEND a [message] to [mailbox].
+     *
+     * Sends the APPEND command, waits for the server continuation, writes the
+     * message bytes, then waits for the tagged OK.
+     */
+    suspend fun append(
+        mailbox: String,
+        flags: List<String> = emptyList(),
+        internalDate: String? = null,
+        message: ByteArray,
+    ) {
+        val tag = cmd.nextTag()
+        val flagPart = if (flags.isEmpty()) "" else " (${flags.joinToString(" ")})"
+        val datePart = if (internalDate != null) " \"$internalDate\"" else ""
+        transport.writeLine(
+            "$tag APPEND ${ImapCommand.quote(mailbox)}$flagPart$datePart {${message.size}}"
+        )
+        val cont = readOne()
+        if (cont !is ImapResponse.Continuation) {
+            throw ImapException("Expected continuation after APPEND, got: $cont")
+        }
+        transport.writeLine(message.decodeToString())
+        processUntilTagged(tag)
+    }
+
+    // -------------------------------------------------------------------------
+    // FETCH / LIST parsing helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Given the flat attribute list from a FETCH response, build a map of
+     * upper-cased attribute name → value.  BODY section attributes like
+     * `BODY [HEADER] value` are stored under the key `"BODY[HEADER]"`.
+     */
+    private fun extractFetchAttrs(items: List<ImapValue>): Map<String, ImapValue> {
+        val result = mutableMapOf<String, ImapValue>()
+        var i = 0
+        while (i < items.size - 1) {
+            val item = items[i]
+            if (item is ImapValue.Atom) {
+                val name = item.value.uppercase()
+                val next = items.getOrNull(i + 1)
+                if (name == "BODY" && next is ImapValue.Atom && next.value.startsWith("[")) {
+                    val section = next.value.uppercase()
+                    val value = items.getOrNull(i + 2)
+                    if (value != null) {
+                        result["BODY$section"] = value
+                        i += 3
+                        continue
+                    }
+                }
+                if (next != null) {
+                    result[name] = next
+                    i += 2
+                    continue
+                }
+            }
+            i++
+        }
+        return result
+    }
+
+    /** Parse one `* LIST (attrs) delimiter name` untagged response into a [MailboxListEntry]. */
+    private fun parseListResponse(r: ImapResponse.Untagged): MailboxListEntry? {
+        val attrs = r.values.getOrNull(0)?.asList()
+            ?.mapNotNull { it.asString() } ?: emptyList()
+        val delimiter = r.values.getOrNull(1)?.asString()
+        val name = r.values.getOrNull(2)?.asString() ?: return null
+        return MailboxListEntry(attrs, delimiter, name)
     }
 
     // -------------------------------------------------------------------------
@@ -276,3 +384,37 @@ sealed class ImapEvent {
         }
     }
 }
+
+// -------------------------------------------------------------------------
+// Mailbox list entry
+// -------------------------------------------------------------------------
+
+/**
+ * One entry returned by a LIST response.
+ *
+ * @property attributes Server-advertised attributes, e.g. `["\\Noselect", "\\HasChildren"]`.
+ * @property delimiter  Hierarchy delimiter character (e.g. `"/"`), or `null` (NIL) for flat namespaces.
+ * @property name       Mailbox name, e.g. `"INBOX"` or `"Sent"`.
+ */
+data class MailboxListEntry(
+    val attributes: List<String>,
+    val delimiter: String?,
+    val name: String,
+)
+
+// -------------------------------------------------------------------------
+// Fetched message
+// -------------------------------------------------------------------------
+
+/**
+ * A fully-parsed message returned by [ImapSession.fetchMessages].
+ *
+ * @property uid     The message UID.
+ * @property flags   Server-side flags, e.g. `["\\Seen", "\\Flagged"]`.
+ * @property message The RFC 5322 / MIME message parsed by [MimeParser].
+ */
+data class FetchedMessage(
+    val uid: Long,
+    val flags: List<String>,
+    val message: MimeMessage,
+)

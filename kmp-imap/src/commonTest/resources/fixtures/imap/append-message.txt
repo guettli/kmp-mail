@@ -1,0 +1,17 @@
+# IMAP APPEND — store a message in a mailbox
+# Source: RFC 3501 §6.3.11 example (adapted)
+
+# APPEND with flags and internalDate
+C: A001 APPEND "saved-messages" (\Seen) "Mon, 07 Feb 1994 21:52:25 -0800" {45}
+S: + Ready for literal data
+C: From: alice@example.com
+C: Subject: test
+C:
+C: body text
+S: A001 OK APPEND completed
+
+# APPEND with no optional fields
+C: A002 APPEND "INBOX" {10}
+S: + Ready for literal data
+C: short body
+S: A002 OK APPEND completed

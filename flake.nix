@@ -14,8 +14,13 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            # Java host for Kotlin compiler and JVM tests
-            jdk21
+            # Eclipse Temurin 21 — unpatched upstream binary, avoids the NixOS-specific
+            # SIGSEGV in oop_access_barrier / JNIHandles::destroy_global that affects all
+            # NixOS-packaged OpenJDK 21.x builds (triggered by Kotlin/Native FFI cleanup).
+            temurin-bin-21
+
+            # zlib — required by Kotlin/Native's libllvmstubs.so at link time
+            zlib
 
             # Used once: `task init` runs `gradle wrapper` to generate ./gradlew
             # After that, ./gradlew is the primary build tool.
@@ -26,6 +31,9 @@
           ];
 
           shellHook = ''
+            export JAVA_HOME="${pkgs.temurin-bin-21}"
+            export LD_LIBRARY_PATH="${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+
             echo "kmp-mail dev shell"
             echo "  java    : $(java -version 2>&1 | head -1)"
             echo "  gradle  : $(gradle --version 2>/dev/null | grep '^Gradle' || echo 'available')"

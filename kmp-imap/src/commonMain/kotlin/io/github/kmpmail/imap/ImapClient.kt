@@ -67,6 +67,9 @@ class ImapClient(private val config: ImapConfig) {
     suspend fun examine(mailboxName: String): MailboxInfo =
         requireSession().examine(mailboxName)
 
+    suspend fun listMailboxes(reference: String = "", pattern: String = "*"): List<MailboxListEntry> =
+        requireSession().list(reference, pattern)
+
     suspend fun close() = requireSession().close()
 
     // -------------------------------------------------------------------------
@@ -79,8 +82,18 @@ class ImapClient(private val config: ImapConfig) {
     suspend fun uidFetch(uidSet: String, items: String): List<ImapResponse.Untagged> =
         requireSession().uidFetch(uidSet, items)
 
+    suspend fun fetchMessages(uidSet: String): List<FetchedMessage> =
+        requireSession().fetchMessages(uidSet)
+
     suspend fun uidStore(uidSet: String, item: String, flags: String) =
         requireSession().uidStore(uidSet, item, flags)
+
+    suspend fun appendMessage(
+        mailbox: String,
+        flags: List<String> = emptyList(),
+        internalDate: String? = null,
+        message: ByteArray,
+    ) = requireSession().append(mailbox, flags, internalDate, message)
 
     suspend fun noop() = requireSession().noop()
 
