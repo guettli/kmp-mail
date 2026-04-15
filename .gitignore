@@ -10,6 +10,7 @@ local.properties
 
 # IntelliJ IDEA / Android Studio
 .idea/
+.kotlin/
 *.iml
 *.ipr
 *.iws
