@@ -1,0 +1,17 @@
+# IMAP CONDSTORE — SELECT with HIGHESTMODSEQ, FETCH with MODSEQ
+# Source: RFC 7162 §3.1.1 example
+
+C: A01 SELECT INBOX (CONDSTORE)
+S: * 172 EXISTS
+S: * 1 RECENT
+S: * OK [UNSEEN 12] Message 12 is first unseen
+S: * OK [UIDVALIDITY 3857529045] UIDs valid
+S: * OK [UIDNEXT 4392] Predicted next UID
+S: * FLAGS (\Answered \Flagged \Deleted \Seen \Draft)
+S: * OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited
+S: * OK [HIGHESTMODSEQ 715194045007]
+S: A01 OK [READ-WRITE] SELECT completed
+
+C: A02 UID FETCH 1:* (FLAGS) (CHANGEDSINCE 715194045006)
+S: * 1 FETCH (UID 4 MODSEQ (715194045007) FLAGS (\Seen \Deleted))
+S: A02 OK Fetch completed

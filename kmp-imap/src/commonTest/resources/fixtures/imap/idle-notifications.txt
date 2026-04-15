@@ -1,0 +1,18 @@
+# IMAP IDLE session with server push notifications
+# Source: RFC 2177 §3 example
+
+C: A001 SELECT INBOX
+S: * 4 EXISTS
+S: * 2 RECENT
+S: * OK [UNSEEN 3] Message 3 is first unseen
+S: * FLAGS (\Answered \Flagged \Deleted \Seen \Draft)
+S: A001 OK SELECT completed
+C: A002 IDLE
+S: + idling
+# Client holds the connection open; server sends unsolicited responses:
+S: * 5 EXISTS
+S: * 1 RECENT
+S: * 4 EXPUNGE
+# Client sends DONE to stop IDLE:
+C: DONE
+S: A002 OK IDLE terminated

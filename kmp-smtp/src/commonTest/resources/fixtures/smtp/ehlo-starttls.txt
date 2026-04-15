@@ -1,0 +1,20 @@
+# SMTP session: EHLO + STARTTLS negotiation
+# Source: RFC 3207 §5 example
+# S: = server-sent line, C: = client-sent line
+
+S: 220 mail.example.com ESMTP Postfix
+C: EHLO client.example.com
+S: 250-mail.example.com
+S: 250-PIPELINING
+S: 250-SIZE 10240000
+S: 250-STARTTLS
+S: 250 OK
+C: STARTTLS
+S: 220 2.0.0 Ready to start TLS
+# TLS handshake happens here (handled by ktor-network-tls)
+C: EHLO client.example.com
+S: 250-mail.example.com
+S: 250-PIPELINING
+S: 250-SIZE 10240000
+S: 250-AUTH PLAIN LOGIN
+S: 250 OK

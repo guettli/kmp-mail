@@ -1,0 +1,12 @@
+# SMTP AUTH PLAIN exchange
+# Source: RFC 4616 §2 example
+# Credentials: user="tim", pass="tanstaaftanstaaf"
+# PLAIN token = \0tim\0tanstaaftanstaaf  (base64 = dGltAHRpbQB0YW5zdGFhZnRhbnN0YWFm)
+
+S: 220 smtp.example.com ESMTP
+C: EHLO client.example.com
+S: 250-smtp.example.com
+S: 250-AUTH PLAIN LOGIN
+S: 250 OK
+C: AUTH PLAIN dGltAHRpbQB0YW5zdGFhZnRhbnN0YWFm
+S: 235 2.7.0 Authentication successful

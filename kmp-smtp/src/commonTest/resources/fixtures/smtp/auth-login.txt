@@ -1,0 +1,15 @@
+# SMTP AUTH LOGIN exchange (two-step challenge/response)
+# Source: historical practice (not formally in an RFC; widely deployed)
+# user="tim" (base64 = dGlt), pass="tanstaaftanstaaf" (base64 = dGFuc3RhYWZ0YW5zdGFhZg==)
+
+S: 220 smtp.example.com ESMTP
+C: EHLO client.example.com
+S: 250-smtp.example.com
+S: 250-AUTH PLAIN LOGIN
+S: 250 OK
+C: AUTH LOGIN
+S: 334 VXNlcm5hbWU6
+C: dGlt
+S: 334 UGFzc3dvcmQ6
+C: dGFuc3RhYWZ0YW5zdGFhZg==
+S: 235 2.7.0 Authentication successful

@@ -1,0 +1,11 @@
+# IMAP UID FETCH — envelope and flags
+# Source: RFC 3501 §6.4.5 example (adapted)
+
+C: A654 UID FETCH 12 (FLAGS BODY[HEADER.FIELDS (DATE FROM SUBJECT)])
+S: * 12 FETCH (FLAGS (\Seen) UID 12 BODY[HEADER.FIELDS (DATE FROM SUBJECT)] {102}
+S: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
+S: From: Fred Foobar <foobar@Blurdybloop.COM>
+S: Subject: afternoon meeting
+S:
+S: )
+S: A654 OK UID FETCH completed

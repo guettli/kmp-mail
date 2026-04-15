@@ -1,0 +1,12 @@
+# IMAP SELECT INBOX
+# Source: RFC 3501 §6.3.1 example
+
+C: A142 SELECT INBOX
+S: * 172 EXISTS
+S: * 1 RECENT
+S: * OK [UNSEEN 12] Message 12 is first unseen
+S: * OK [UIDVALIDITY 3857529045] UIDs valid
+S: * OK [UIDNEXT 4392] Predicted next UID
+S: * FLAGS (\Answered \Flagged \Deleted \Seen \Draft)
+S: * OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited
+S: A142 OK [READ-WRITE] SELECT completed

@@ -1,0 +1,47 @@
+version: '3'
+
+vars:
+  GRADLE: ./gradlew
+  GRADLE_VERSION: 8.12.1
+
+tasks:
+  default:
+    desc: List available tasks
+    silent: true
+    cmd: task --list
+
+  init:
+    desc: "Generate Gradle wrapper (run once inside nix develop)"
+    cmd: gradle wrapper --gradle-version {{.GRADLE_VERSION}}
+
+  build:
+    desc: Build all modules
+    cmd: "{{.GRADLE}} build"
+
+  test:
+    desc: Run all tests (all modules)
+    cmd: "{{.GRADLE}} allTests"
+
+  test-mime:
+    desc: Run kmp-mime tests only
+    cmd: "{{.GRADLE}} :kmp-mime:allTests"
+
+  test-smtp:
+    desc: Run kmp-smtp tests only
+    cmd: "{{.GRADLE}} :kmp-smtp:allTests"
+
+  test-imap:
+    desc: Run kmp-imap tests only
+    cmd: "{{.GRADLE}} :kmp-imap:allTests"
+
+  check:
+    desc: Run all checks (compile + test)
+    cmd: "{{.GRADLE}} check"
+
+  clean:
+    desc: Delete all build outputs
+    cmd: "{{.GRADLE}} clean"
+
+  assemble:
+    desc: Compile all modules without running tests
+    cmd: "{{.GRADLE}} assemble"
