@@ -8,9 +8,9 @@ Built as the network layer for [SharedInbox](https://github.com/guettli/sharedin
 
 | Module | Protocols | Status |
 |--------|-----------|--------|
-| `kmp-mime` | RFC 5322 · RFC 2045/2046/2047 — parse & build MIME messages | ✅ implemented |
-| `kmp-smtp` | RFC 5321 · AUTH PLAIN/LOGIN · STARTTLS | 🚧 planned |
-| `kmp-imap` | IMAP4rev1 · IDLE · CONDSTORE · UIDPLUS | 🚧 planned |
+| `kmp-mime` | RFC 5322 · RFC 2045/2046/2047 — parse & build MIME messages | ✅ 27 tests |
+| `kmp-smtp` | RFC 5321 · AUTH PLAIN/LOGIN · STARTTLS | ✅ 18 tests |
+| `kmp-imap` | IMAP4rev1 · IDLE · CONDSTORE · UIDPLUS | ✅ 31 tests |
 
 All three modules target **JVM and Native** (linuxX64), with iOS and macOS targets ready to enable.
 Dependencies: [ktor-network](https://ktor.io) for `kmp-smtp` and `kmp-imap`; `kmp-mime` is dependency-free.

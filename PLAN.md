@@ -7,8 +7,8 @@ Three Kotlin Multiplatform libraries for email protocol support:
 | Library    | Protocols / RFCs                              | Dependencies                          | Status          |
 |------------|-----------------------------------------------|---------------------------------------|-----------------|
 | `kmp-mime` | RFC 5322, RFC 2045/2046/2047                  | Pure KMP — no network deps            | ✅ done, 27 tests |
-| `kmp-smtp` | RFC 5321, AUTH PLAIN/LOGIN, STARTTLS          | ktor-network, ktor-network-tls        | 🚧 next         |
-| `kmp-imap` | IMAP4rev1, IDLE, CONDSTORE, UIDPLUS           | ktor-network, ktor-network-tls        | 🚧 planned      |
+| `kmp-smtp` | RFC 5321, AUTH PLAIN/LOGIN, STARTTLS          | ktor-network, ktor-network-tls        | ✅ done, 18 tests |
+| `kmp-imap` | IMAP4rev1, IDLE, CONDSTORE, UIDPLUS           | ktor-network, ktor-network-tls        | ✅ done, 31 tests |
 
 Dependency graph: `kmp-smtp` and `kmp-imap` both depend on `kmp-mime`.
 
@@ -51,26 +51,25 @@ kmp-mail/
 │   └── MimeBuilder.kt        ✅  (fluent DSL, text/html/attachment)
 │
 ├── kmp-smtp/src/commonMain/kotlin/io/github/kmpmail/smtp/
-│   ├── SmtpClient.kt         🚧
-│   ├── SmtpConnection.kt     🚧
-│   ├── SmtpSession.kt        🚧
-│   ├── SmtpCommand.kt        🚧
-│   ├── SmtpResponse.kt       🚧
-│   ├── SmtpAuth.kt           🚧
-│   ├── StartTlsExtension.kt  🚧
-│   └── SmtpException.kt      🚧
+│   ├── SmtpClient.kt         ✅  (high-level API + SmtpConfig/SmtpSecurity)
+│   ├── SmtpConnection.kt     ✅  (ktor TCP+TLS, TlsUpgradeable)
+│   ├── SmtpSession.kt        ✅  (full state machine, dot-stuffing)
+│   ├── SmtpCapabilities.kt   ✅  (EHLO parser)
+│   ├── SmtpResponse.kt       ✅  (multi-line response reader)
+│   ├── SmtpAuth.kt           ✅  (AUTH PLAIN + AUTH LOGIN)
+│   ├── SmtpTransport.kt      ✅  (interface + TlsUpgradeable)
+│   └── SmtpException.kt      ✅
 │
 └── kmp-imap/src/commonMain/kotlin/io/github/kmpmail/imap/
-    ├── ImapClient.kt         🚧
-    ├── ImapConnection.kt     🚧
-    ├── ImapSession.kt        🚧
-    ├── ImapCommand.kt        🚧
-    ├── ImapResponse.kt       🚧
-    ├── ImapParser.kt         🚧  (hardest part — see notes below)
-    ├── IdleExtension.kt      🚧
-    ├── CondstoreExtension.kt 🚧
-    ├── UidplusExtension.kt   🚧
-    └── ImapException.kt      🚧
+    ├── ImapClient.kt         ✅  (high-level API + ImapConfig/ImapSecurity)
+    ├── ImapConnection.kt     ✅  (ktor TCP+TLS, literal inlining, ImapTlsUpgradeable)
+    ├── ImapSession.kt        ✅  (full state machine + MailboxInfo + ImapEvent + idle Flow)
+    ├── ImapCommand.kt        ✅  (tag generator A001…, all command builders)
+    ├── ImapResponse.kt       ✅  (Untagged / Tagged / Continuation sealed hierarchy)
+    ├── ImapParser.kt         ✅  (cursor-based: atom/quoted/literal/list/NIL/brackets)
+    ├── ImapTransport.kt      ✅  (interface + ImapTlsUpgradeable)
+    ├── ImapValue.kt          ✅  (Atom/Str/Num/Lst/Nil sealed hierarchy)
+    └── ImapException.kt      ✅  (ImapNoException, ImapBadException)
 ```
 
 ---
@@ -146,7 +145,7 @@ nested comment in Kotlin's block-comment lexer. Avoid `` `foo/*` `` in KDoc.
 
 ---
 
-## Phase 3 — kmp-smtp 🚧
+## Phase 3 — kmp-smtp ✅
 
 ### Session state machine
 
@@ -190,7 +189,7 @@ Assert: commands sent by client match `C:` lines; responses fed from `S:` lines.
 
 ---
 
-## Phase 4 — kmp-imap 🚧
+## Phase 4 — kmp-imap ✅
 
 ### Session state machine (RFC 3501 §3)
 
