@@ -1,4 +1,6 @@
 # Gradle
+.env
+.direnv
 .gradle/
 build/
 local.properties
