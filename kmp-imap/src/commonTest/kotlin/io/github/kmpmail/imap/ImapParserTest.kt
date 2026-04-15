@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * Unit tests for [ImapParser].
@@ -105,7 +106,7 @@ class ImapParserTest {
         val r = ImapParser.parse("* CAPABILITY IMAP4rev1 STARTTLS AUTH=PLAIN") as ImapResponse.Untagged
         assertEquals("CAPABILITY", r.keyword)
         // text contains the capability list
-        assert(r.text.contains("IMAP4rev1"))
+        assertTrue(r.text.contains("IMAP4rev1"))
     }
 
     @Test
@@ -115,8 +116,8 @@ class ImapParserTest {
         val list = r.values.firstOrNull()
         assertIs<ImapValue.Lst>(list)
         val items = list.items.map { (it as ImapValue.Atom).value }
-        assert(items.contains("\\Answered"))
-        assert(items.contains("\\Seen"))
+        assertTrue(items.contains("\\Answered"))
+        assertTrue(items.contains("\\Seen"))
     }
 
     // -------------------------------------------------------------------------

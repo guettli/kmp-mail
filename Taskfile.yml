@@ -35,8 +35,8 @@ tasks:
     cmd: "{{.GRADLE}} :kmp-imap:allTests"
 
   check:
-    desc: Run all checks (compile + test)
-    cmd: "{{.GRADLE}} check"
+    desc: "Run all checks (compile + test + coverage ≥ 92% line / 89% instruction)"
+    cmd: "{{.GRADLE}} check koverVerify"
 
   clean:
     desc: Delete all build outputs

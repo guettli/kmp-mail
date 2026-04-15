@@ -112,7 +112,7 @@ data class SmtpConfig(
         var security: SmtpSecurity = SmtpSecurity.STARTTLS
         var credentials: SmtpCredentials? = null
         var localDomain: String = "localhost"
-        var coroutineContext: CoroutineContext = Dispatchers.IO
+        var coroutineContext: CoroutineContext = Dispatchers.Default
 
         fun credentials(username: String, password: String) {
             credentials = SmtpCredentials(username, password)

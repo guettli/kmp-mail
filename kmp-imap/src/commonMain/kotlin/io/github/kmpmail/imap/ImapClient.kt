@@ -137,7 +137,7 @@ data class ImapConfig(
         var security: ImapSecurity = ImapSecurity.TLS
         var username: String = ""
         var password: String = ""
-        var coroutineContext: CoroutineContext = Dispatchers.IO
+        var coroutineContext: CoroutineContext = Dispatchers.Default
 
         fun build() = ImapConfig(host, port, security, username, password, coroutineContext)
     }

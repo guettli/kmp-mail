@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
 class SmtpConnection(
     private val host: String,
     private val port: Int,
-    private val coroutineContext: CoroutineContext = Dispatchers.IO,
+    private val coroutineContext: CoroutineContext = Dispatchers.Default,
 ) : TlsUpgradeable {
 
     private val selectorManager = SelectorManager(coroutineContext)

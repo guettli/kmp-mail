@@ -24,7 +24,7 @@ import kotlin.coroutines.CoroutineContext
 class ImapConnection(
     private val host: String,
     private val port: Int,
-    private val coroutineContext: CoroutineContext = Dispatchers.IO,
+    private val coroutineContext: CoroutineContext = Dispatchers.Default,
 ) : ImapTlsUpgradeable {
 
     private val selectorManager = SelectorManager(coroutineContext)

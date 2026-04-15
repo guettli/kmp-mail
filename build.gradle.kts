@@ -1,3 +1,5 @@
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+
 // Root build file.
 // Subprojects apply their own plugins via the version catalog.
 // Common configuration shared by all subprojects lives here.
@@ -33,8 +35,13 @@ kover {
         }
         verify {
             rule {
-                minBound(85)
+                // Floors of the measured values (LINE 92.9%, INSTRUCTION 89.1%).
+                // Rounded down to whole numbers so a single added line does not
+                // flip the gate. Kover 0.9.x supports LINE, INSTRUCTION, BRANCH.
+                minBound(92, CoverageUnit.LINE)
+                minBound(89, CoverageUnit.INSTRUCTION)
             }
         }
     }
 }
+
