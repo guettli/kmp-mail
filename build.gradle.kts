@@ -11,7 +11,24 @@ plugins {
 
 subprojects {
     group   = "io.github.kmpmail"
-    version = "0.1.0-SNAPSHOT"
+    version = findProperty("releaseVersion")?.toString() ?: "0.1.1-SNAPSHOT"
+
+    apply(plugin = "maven-publish")
+
+    afterEvaluate {
+        configure<org.gradle.api.publish.PublishingExtension> {
+            repositories {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/guettli/kmp-mail")
+                    credentials {
+                        username = System.getenv("GITHUB_ACTOR")
+                        password = System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+        }
+    }
 }
 
 // Aggregate coverage from all submodules into the root project.
@@ -44,4 +61,3 @@ kover {
         }
     }
 }
-
