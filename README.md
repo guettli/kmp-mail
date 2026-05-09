@@ -1,5 +1,12 @@
 # Kotlin Multiplatform IMAP / SMTP / MIME
 
+---
+
+update: this package is no longer supported, i switched to Flutter.
+
+---
+
+
 Pure-Kotlin email protocol libraries — no JavaMail, no platform lock-in.
 
 Built as the network layer for [SharedInbox](https://github.com/guettli/sharedinbox).
